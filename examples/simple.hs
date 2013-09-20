@@ -2,11 +2,22 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RankNTypes #-}
 module Main where
 
 import Control.Monad.Trans.Demarcate
 import Control.Monad.Free
 import Control.Monad.State
+
+-- | Substitute free monad actions with demarcated monad computations.
+transformDemarcateFree :: (Functor f) =>
+  (forall b. f (Demarcate t (Free f) b) -> Demarcate t (Free f) b) -> Demarcate t (Free f) a -> Demarcate t (Free f) a
+transformDemarcateFree phi = transformDemarcateM (iterM phi)
+
+-- | Helper function (useful with @transformDemarcateFree@).
+-- I believe it should be somewhere in @Control.Monad.Free@
+wrapInner :: (Functor f, MonadTrans t, Monad (t (Free f))) => f (t (Free f) a) -> t (Free f) a
+wrapInner = join . lift . liftF
 
 -- | Instructions for a toy language.
 data ProgramF next
