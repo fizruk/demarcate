@@ -1,0 +1,31 @@
+Name:                   demarcate
+Version:                0.0.0
+Author:                 Nickolay Kudasov<nickolay.kudasov@gmail.com>
+Maintainer:             Nickolay Kudasov<nickolay.kudasov@gmail.com>
+License:                BSD3
+License-File:           LICENSE
+Synopsis:               Demarcating transformed monad.
+-- Description:            
+Cabal-Version:          >= 1.10
+Build-Type:             Simple
+
+Library
+  Default-Language:     Haskell2010
+  HS-Source-Dirs:       src
+  GHC-Options:          -Wall
+  Exposed-Modules:      Control.Monad.Trans.Demarcate
+  Other-Modules:        Control.Monad.Trans.Demarcate.Internal
+  Build-Depends:        base >= 4 && < 5
+
+Test-Suite spec
+  Type:                 exitcode-stdio-1.0
+  Default-Language:     Haskell2010
+  Hs-Source-Dirs:       test
+  Ghc-Options:          -Wall
+  Main-Is:              Spec.hs
+  Build-Depends:        base
+                      , hspec
+
+Source-Repository head
+  Type:                 git
+--  Location:             
