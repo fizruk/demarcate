@@ -1,14 +1,20 @@
 # demarcate
 
-TODO: Write description here
+Library for demarcated transformed monads.
 
 ## Installation
 
-TODO: Write installation instructions here
+You can simply clone this repository and run `cabal-install`:
+
+```
+$ git clone https://github.com/fizruk/demarcate.git
+$ cd demarcate
+$ cabal install
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+See `examples/` directory.
 
 ## How to run tests
 
