@@ -16,7 +16,6 @@ Library
   Exposed-Modules:      Control.Monad.Trans.Demarcate
   Other-Modules:        Control.Monad.Trans.Demarcate.Internal
   Build-Depends:        base >= 4 && < 5
-                      , free
                       , transformers
 
 Test-Suite spec
