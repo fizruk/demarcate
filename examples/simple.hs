@@ -74,9 +74,9 @@ hack = transformDemarcateFree hackF
     hackF cmd@(Output s next) = do
       modify (+1)
       output "*** incremented state"
-      wrapInner cmd
+      wrapT cmd
     hackF cmd =
-      wrapInner cmd
+      wrapT cmd
 
 -- | Running hacked program...
 main :: IO ()
