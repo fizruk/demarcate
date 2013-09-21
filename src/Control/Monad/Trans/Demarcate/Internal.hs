@@ -6,7 +6,7 @@ module Control.Monad.Trans.Demarcate.Internal (
     Demarcate,
     demarcateM, demarcateT,
     execDemarcate,
-    wrapInner,
+    wrapT,
     transformDemarcateM, transformDemarcateFree,
     hoistDemarcateT,
 ) where
@@ -77,6 +77,6 @@ transformDemarcateFree phi = transformDemarcateM (iterM phi)
 
 -- | Helper function (useful with @transformDemarcateFree@).
 -- I believe it should be somewhere in @Control.Monad.Free@
-wrapInner :: (Functor f, MonadTrans t, Monad (t (Free f))) => f (t (Free f) a) -> t (Free f) a
-wrapInner = join . lift . liftF
+wrapT :: (Functor f, MonadFree f m, MonadTrans t, Monad (t m)) => f (t m a) -> t m a
+wrapT = join . lift . liftF
 
