@@ -17,8 +17,8 @@ import Control.Monad (join)
 
 -- | Demarcate functor.
 data DemarcateF t m next
-    = forall a. DemarcateMonad (  m a) (a -> next)  -- | Unlifted monadic computation.
-    | forall a. DemarcateTrans (t m a) (a -> next)  -- | Transformed monadic computation.
+    = forall a. DemarcateMonad (  m a) (a -> next)  -- ^ Unlifted monadic computation.
+    | forall a. DemarcateTrans (t m a) (a -> next)  -- ^ Transformed monadic computation.
 
 instance Functor (DemarcateF t m) where
     fmap f (DemarcateMonad m g) = DemarcateMonad m (f . g)
