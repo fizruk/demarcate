@@ -2,14 +2,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
-module Control.Monad.Trans.Demarcate.Internal (
-    Demarcate,
-    demarcateM, demarcateT,
-    execDemarcate,
-    wrapT,
-    transformDemarcateM, transformDemarcateFree,
-    hoistDemarcateT,
-) where
+module Control.Monad.Trans.Demarcate.Internal where
 
 import Control.Monad.Free
 import Control.Monad.Trans.Class

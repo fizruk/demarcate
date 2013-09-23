@@ -1,5 +1,10 @@
 module Control.Monad.Trans.Demarcate (
-  module Control.Monad.Trans.Demarcate.Internal,
+    Demarcate,
+    demarcateM, demarcateT,
+    execDemarcate,
+    wrapT,
+    transformDemarcateM, transformDemarcateFree,
+    hoistDemarcateT,
 ) where
 
 import Control.Monad.Trans.Demarcate.Internal
