@@ -5,7 +5,9 @@ Maintainer:             Nickolay Kudasov<nickolay.kudasov@gmail.com>
 License:                BSD3
 License-File:           LICENSE
 Synopsis:               Demarcating transformed monad.
--- Description:            
+Description:
+  This library provides 'Demarcate' type constructor which makes
+  possible transformations of @t m a@ monadic values.
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
 Stability:              experimental
