@@ -1,7 +1,18 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-
+---------------------------------------------------------------------------
+-- |
+-- Module      :  Control.Monad.Trans.Demarcate.Internal
+-- Copyright   :  (c) Nickolay Kudasov 2013
+-- License     :  BSD-style (see the file LICENSE)
+-- 
+-- Maintainer  :  nickolay.kudasov@gmail.com
+-- Stability   :  experimental
+-- Portability :  ghc
+--
+-- Internals of the 'Demarcate' monad transformer.
+---------------------------------------------------------------------------
 module Control.Monad.Trans.Demarcate.Internal where
 
 import Control.Monad.Free
