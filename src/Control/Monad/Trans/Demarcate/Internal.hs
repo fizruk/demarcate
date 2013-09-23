@@ -1,6 +1,9 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE UndecidableInstances #-}
 ---------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Trans.Demarcate.Internal
@@ -18,6 +21,13 @@ module Control.Monad.Trans.Demarcate.Internal where
 import Control.Monad.Free
 import Control.Monad.Trans.Class
 import Control.Monad (join)
+
+import Control.Monad.State.Class
+import Control.Monad.Writer.Class
+import Control.Monad.Reader.Class
+import Control.Monad.RWS.Class
+import Control.Monad.Error.Class
+import Control.Monad.Cont.Class
 
 -- | Demarcate functor.
 data DemarcateF t m next
@@ -44,6 +54,36 @@ instance MonadFree (DemarcateF t m) (Demarcate t m) where
 
 instance MonadTrans (Demarcate t) where
     lift m = liftF $ DemarcateMonad m id
+
+instance (MonadState s (t m)) => MonadState s (Demarcate t m) where
+    get = demarcateT get
+    put = demarcateT . put
+
+instance (MonadReader e (t m)) => MonadReader e (Demarcate t m) where
+    ask    = demarcateT ask
+    reader = demarcateT . reader
+    local f = hoistDemarcateT $ local f
+
+-- | [Warning: 'listen' and 'pass' arguments are not visible for 'transformDemarcateM'.]
+instance (Monad m, MonadTrans t, MonadWriter w (t m)) => MonadWriter w (Demarcate t m) where
+    tell   = demarcateT . tell
+    listen = demarcateT . listen . execDemarcate
+    pass   = demarcateT . pass . execDemarcate
+
+-- | [Warning: 'listen' and 'pass' arguments are not visible for 'transformDemarcateM'.]
+instance (Monad m, MonadTrans t, MonadRWS r w s (t m)) => MonadRWS r w s (Demarcate t m)
+
+-- | [Warning: 'catchError' arguments are not visible for 'transformDemarcateM'.]
+instance (Monad m, MonadTrans t, MonadError e (t m)) => MonadError e (Demarcate t m) where
+    throwError = demarcateT . throwError
+    catchError t c = demarcateT $
+      catchError (execDemarcate t) (execDemarcate . c)
+
+-- | [Warning: 'callCC' argument is not visible for 'transformDemarcateM'.]
+instance (Monad m, MonadTrans t, MonadCont (t m)) => MonadCont (Demarcate t m) where
+    callCC f = demarcateT $ callCC (\k ->
+                                   execDemarcate (f (\x ->
+                                                 demarcateT $ k x)))
 
 -- | Lift pure monadic computation into @Demarcate t m a@
 demarcateM :: m a -> Demarcate t m a
