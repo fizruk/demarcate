@@ -17,6 +17,7 @@ Category:               Control
 
 Library
   Default-Language:     Haskell2010
+  Default-Extensions:   Trustworthy
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
   Exposed-Modules:      Control.Monad.Trans.Demarcate
