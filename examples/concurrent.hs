@@ -1,7 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
 module Main where
 
 import Control.Monad.Trans.Demarcate
@@ -40,10 +38,6 @@ getNum = lift . liftF $ GetNum id
 
 -- | SP stands for Stateful Program.
 type SP = Demarcate (StateT Int) Program
-
-instance (MonadState s (t m)) => MonadState s (Demarcate t m) where
-    get = demarcateT get
-    put = demarcateT . put
 
 type Env = ReaderT (TVar Int) IO
 

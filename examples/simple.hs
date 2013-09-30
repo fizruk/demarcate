@@ -1,7 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
 module Main where
 
 import Control.Monad.Trans.Demarcate
@@ -30,10 +28,6 @@ input = lift . liftF $ Input id
 
 -- | SP stands for Stateful Program.
 type SP = Demarcate (StateT Int) Program
-
-instance (MonadState s (t m)) => MonadState s (Demarcate t m) where
-    get = demarcateT get
-    put = demarcateT . put
 
 -- | Interpreter for a low-level program.
 runProgram :: Program a -> IO a
