@@ -1,10 +1,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
-module Main where
+module Common where
 
-import Control.Monad.Trans.Demarcate
+import Control.Monad
 import Control.Monad.Free
-import Control.Monad.State
+import Control.Monad.Trans.Demarcate
+import Control.Monad.Trans.Class
 
 -- | Instructions for a toy language.
 data ProgramF next
@@ -26,8 +27,7 @@ output s = lift . liftF $ Output s ()
 input :: (MonadFree ProgramF m, MonadTrans t) => t m String
 input = lift . liftF $ Input id
 
--- | SP stands for Stateful Program.
-type SP = Demarcate (StateT Int) Program
+type P t = Demarcate t Program
 
 -- | Interpreter for a low-level program.
 runProgram :: Program a -> IO a
@@ -36,43 +36,19 @@ runProgram = iterM runProgramF
     runProgramF (Output s next) = putStrLn s >> next
     runProgramF (Input next)    = getLine >>= next
 
--- | Interpreter for a stateful program
-runSP :: SP a -> IO a
-runSP = runProgram . flip evalStateT 0 . execDemarcate
-
--- | Subprogram. Outputs current state.
-outputState :: SP ()
-outputState = do
-    n <- get
-    output $ "state: " ++ show n
-
--- | Program for our toy language.
-prg :: SP ()
-prg = do
-    outputState
-
-    output "Hello!"
-    output "Enter your name, please:"
-    s <- input
-    output $ "Goodbye, " ++ s ++ "!"
-
-    outputState
+runP :: (Monad (t Program), MonadTrans t) => (t Program a -> Program b) -> P t a -> IO b
+runP runT = runProgram . runT . execDemarcate
 
 -- | A hacking transformation.
--- It prepend to each low-level output some extra stateful code.
+-- It prepend to each low-level output some extra code.
 -- Other commands are left untouched.
-hack :: SP a -> SP a
-hack = transformDemarcateFree hackF
+hack ::  P t ()-> P t a -> P t a
+hack h = transformDemarcateFree hackF
   where
-    hackF :: ProgramF (SP a) -> SP a
     hackF cmd@(Output s next) = do
-      modify (+1)
-      output "*** incremented state"
-      wrapT cmd
+      h
+      output $ "[hacked] " ++ s
+      next
     hackF cmd =
       wrapT cmd
-
--- | Running hacked program...
-main :: IO ()
-main = runSP $ hack prg
 
