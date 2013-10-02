@@ -29,6 +29,8 @@ import Control.Monad.RWS.Class
 import Control.Monad.Error.Class
 import Control.Monad.Cont.Class
 
+import Data.Monoid
+
 -- | Demarcate functor.
 data DemarcateF t m next
     = forall a. DemarcateMonad (  m a) (a -> next)  -- ^ Unlifted monadic computation.
@@ -64,13 +66,19 @@ instance (MonadReader e (t m)) => MonadReader e (Demarcate t m) where
     reader = demarcateT . reader
     local f = hoistDemarcateT $ local f
 
--- | [Warning: 'listen' and 'pass' arguments are not visible for 'transformDemarcateM'.]
+-- | [Warning: 'pass' argument is not visible for 'transformDemarcateM'.]
 instance (Monad m, MonadTrans t, MonadWriter w (t m)) => MonadWriter w (Demarcate t m) where
     tell   = demarcateT . tell
-    listen = demarcateT . listen . execDemarcate
+    listen = iterM listenF . fmap (\x -> (x, mempty)) . unDemarcate
+      where
+        listenF (DemarcateTrans m g) = do
+          (x, w1) <- demarcateT (listen m)
+          (y, w2) <- g x
+          return (y, w1 `mappend` w2)
+        listenF (DemarcateMonad m g) = demarcateM m >>= g
     pass   = demarcateT . pass . execDemarcate
 
--- | [Warning: 'listen' and 'pass' arguments are not visible for 'transformDemarcateM'.]
+-- | [Warning: 'pass' argument is not visible for 'transformDemarcateM'.]
 instance (Monad m, MonadTrans t, MonadRWS r w s (t m)) => MonadRWS r w s (Demarcate t m)
 
 -- | [Warning: 'catchError' arguments are not visible for 'transformDemarcateM'.]
@@ -79,11 +87,10 @@ instance (Monad m, MonadTrans t, MonadError e (t m)) => MonadError e (Demarcate 
     catchError t c = demarcateT $
       catchError (execDemarcate t) (execDemarcate . c)
 
--- | [Warning: 'callCC' argument is not visible for 'transformDemarcateM'.]
 instance (Monad m, MonadTrans t, MonadCont (t m)) => MonadCont (Demarcate t m) where
-    callCC f = demarcateT $ callCC (\k ->
-                                   execDemarcate (f (\x ->
-                                                 demarcateT $ k x)))
+    callCC f = Demarcate (Free (DemarcateTrans m unDemarcate))
+      where
+        m = callCC (\k -> return (f $ \x -> demarcateT $ k (return x)))
 
 -- | Lift pure monadic computation into @Demarcate t m a@
 demarcateM :: m a -> Demarcate t m a
