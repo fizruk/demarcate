@@ -18,7 +18,9 @@
 ---------------------------------------------------------------------------
 module Control.Monad.Trans.Demarcate.Internal where
 
-import Control.Monad.Free
+import Control.Monad.Free.Church
+import qualified Control.Monad.Free as F
+
 import Control.Monad.Trans.Class
 import Control.Monad (join)
 
@@ -42,7 +44,7 @@ instance Functor (DemarcateF t m) where
 
 -- | Demarcate monad transformer.
 newtype Demarcate t m a = Demarcate
-    { unDemarcate :: Free (DemarcateF t m) a }
+    { unDemarcate :: F (DemarcateF t m) a }
 
 instance Functor (Demarcate t m) where
     fmap f = Demarcate . fmap f . unDemarcate
@@ -88,7 +90,7 @@ instance (Monad m, MonadTrans t, MonadError e (t m)) => MonadError e (Demarcate 
       catchError (execDemarcate t) (execDemarcate . c)
 
 instance (Monad m, MonadTrans t, MonadCont (t m)) => MonadCont (Demarcate t m) where
-    callCC f = Demarcate (Free (DemarcateTrans m unDemarcate))
+    callCC f = wrap (DemarcateTrans m id)
       where
         m = callCC (\k -> return (f $ \x -> demarcateT $ k (return x)))
 
@@ -123,8 +125,8 @@ transformDemarcateM phi = iterM transformF . unDemarcate
 
 -- | Substitute free monad actions with demarcated monad computations.
 transformDemarcateFree :: (Functor f) =>
-  (forall b. f (Demarcate t (Free f) b) -> Demarcate t (Free f) b) -> Demarcate t (Free f) a -> Demarcate t (Free f) a
-transformDemarcateFree phi = transformDemarcateM (iterM phi)
+  (forall b. f (Demarcate t (F.Free f) b) -> Demarcate t (F.Free f) b) -> Demarcate t (F.Free f) a -> Demarcate t (F.Free f) a
+transformDemarcateFree phi = transformDemarcateM (F.iterM phi)
 
 -- | Helper function (useful with @transformDemarcateFree@).
 -- I believe it should be somewhere in @Control.Monad.Free@
