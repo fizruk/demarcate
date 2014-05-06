@@ -2,6 +2,8 @@
 
 [![Build Status](https://secure.travis-ci.org/fizruk/demarcate.png?branch=master)](http://travis-ci.org/fizruk/demarcate)
 
+**[DEPRECATED]**: use `FreeT` free monad transformer from [free](http://hackage.haskell.org/free) package instead.
+
 Library for demarcated transformed monads.
 
 ## Installation
